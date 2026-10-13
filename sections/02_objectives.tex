@@ -1,1 +1,23 @@
 \chapter{Objectives \& Constraints}
+
+\section{Core Objectives}
+
+Wayclip consists of a small team of developers, so the goals are quite simple and straightforward, but still require persistant effort to achieve.
+
+
+\begin{itemize}
+	\item Recording: Wayclip aims to have a so-called circular "Ring Buffer", able to capture and retain the last \emph{N} seconds of footage.
+	      Then, via the IPC, or a hotkey, a snapshot of the Ring Buffer is taken, and data written to a file.
+	      The recording itself should be efficient (meaning low CPU, RAM \& VRAM usage), widely supported across codecs and hardware and stable enough to record long gaming session across multiple games.
+	      Lastly, the recording should not depend on any third-party packages which already provide a ready tool, meaning Wayclip is not "just another wrapper" and has its own pipeline.
+	      \emph{P.S. This does \textbf{not} mean that Wayclip will not use any external libraries such as GStreamer, FFMpeg, PipeWire and more...}
+	\item Ease Of Use: Wayclip should provide an easy to way to install, setup and use the tools provided. This can be achieved by providing official packages across many distrubtions and consistent support to the community.
+	      To ensure that Wayclip is as easy to use, we are planning to implement an intuitive GUI application, alongside a website which prompts user to interact with the clips and explore the ecosystem even further.
+	\item Universal Support: Wayclip aims to be available and supported on a range of Linux distributions, and will work identically. Wayclip should also support a variety of hardware such as NVIDIA (NVENC/GL), AMD/Intel (VA-API) and even software based capturing.
+	\item Rich and Robust Ecosystem: Wayclip aims to provide an experience of a social media, with a personal home page, comments, friend system and more via the upcoming website.
+	      This should be integrated directly with the CLI/GUI, allowing for seamless uploads, management of clips and user interaction.
+	\item Open-Source: The most important goal of Wayclip is to provide a base for future projects, and the community to learn and base off.
+	      By making the daemon, core library, CLI, GUI (upcoming) and Website/API (Possibly) open-source, we engage directly with the community, allowing for better user feedback, software improvements and increased trust.
+	      All the source code is available on our GitHub, under the MIT license.
+\end{itemize}
+

@@ -1,7 +1,69 @@
 
 \chapter{The Problem Space}
 
-\section{Wayland}
+\section{Core problem of \emph{Wayland}}
 
-Wayland is the language protocol that applications can use to talk to a display server in order to make themselves visible and get input from the user. A Wayland server is called a \textit{compositor}. \cite{}
+\emph{Wayland} is the language protocol that applications can use to talk to a display server in order to make themselves visible and get input from the user. A Wayland server is called a \textit{compositor}. \cite{wayland}
 
+To understand the problem, lets look at an older server, a direct competitor of \emph{Wayland} -- \emph{X11}.
+On \emph{X11}, any app can grab any other window's pixels, read keystrokes and inject input events.
+This is the way everything "just worked" on \emph{X11} \cite{botmonster_wayland_screenshare}.
+This introduced many security flaws and vulnerabilities, where keyloggers and screen scrapers can run without any friction.
+
+\emph{Wayland}, on the other hand, flips this model -- where each client only knows about its own surfaces. No protocol is able to read
+another clients' pixels or grab its input \cite{botmonster_wayland_screenshare}. This security change, brings safety to users, but stops all the previous methods from working.
+Instead, \emph{Wayland} introduces a new portal which asks user for consent before performing any action. The so called \emph{XDG Desktop Portal} brings a framework for securely accessing resources from outside an application sandbox,
+providing a range of common features to applications, e.g. screencast, screenshots and more \cite{archwiki_xdg_portal}.
+
+Using this \emph{XDG Desktop Portal}, which in turn will call the \lstinline|org.freedesktop.portal.ScreenCast| API and ask the user for consent. Afterwards, the portal hands back a \emph{PipeWire} stream that the app reads.
+\emph{PipeWire} is a project which aims to improve the handling of audio and video under Linux by providing low-latency, graph-based processing engine on top of audio and vidoe devices \cite{pipewire}.
+\emph{PipeWire} provides the main glue which holds many applications and systems alive, like Wayclip.
+
+In short, a convoluted chain of command has to be passed through to screencast, which makes it a pain for developers to introduce new applications. Wayclip, instead, leverages this open space to introduce an open-source solution that will bring more support and drive in this community.
+
+
+\section{Existing Solutions}
+
+Without denial, there already exist (partial) solutions to the problem of screencapture on \emph{Wayland}. Let's break down all the alternatives and compare them to Wayclip.
+
+\subsection{GPU Screen Recorder}
+
+GPU Screen Recorder project is a screen recorder which has minimal impact on performance by recording using the GPU only \cite{gpu_screen_recorder}.
+From internal research, this project works by capturing a DMA-Buf source using PipeWire, which is then scanned directly out over a custom socket into their client. The client is built entirely in \lstinline|C| with custom GL shaders and \lstinline|libav| API's.
+This projects gives the option for users to store the encoded frames directly on the RAM which would ammount to about ~150MB when recording at 60fps, FHD for 2 minutes. These are great results, and the project really does seem to have everything under control,
+offering a range of codecs and hardware support.
+
+Wayclip, takes a different approach to capturing the screen. Instead of working with low-level binaries and protocols, we use \lstinline|gstreamer| and \lstinline|pipewiresrc| bindings directly inside of Rust.
+This allows us to manage the pipeline with the newest tools in a safe manner. \emph{GStreamer} is a library for constructing graphs of media-handling components. Applications can take advantage of advances in codec and filter technology transparently. Developers can add new codecs and filters by writing a simple plugin with a clean, generic interface \cite{gstreamer}.
+
+In addition to the simpler and more manageable interface via \emph{GStreamer}, we also offer built-in support for key-binds, Discord RPC, previews and more.
+
+\subsection{Vice}
+
+\emph{Vice}, or more commonly known as \emph{Vice Clipper}, is another popular project providing instant-replay game clipping for Linux; press one key to save the last 20 seconds of gameplay \cite{vice_clipper}.
+Internally, \emph{Vice} is using the \lstinline|gpu-screen-recorder| engine, with a python UI and API wrapper.
+The wrapper, arguably, has some impressive features: video editor, discord link sharing, and automatic game detection. The hotkey detection is also off-loaded to third-party packages via \lstinline|evdev|.
+Currently, \emph{Vice} is seen as the leading project in the community due to its large reach and community contributions.
+
+Overall, the project has great features, the main centerpiece being the UI/UX. However, Wayclip offers a more full-inclusive range of features including a CLI, GUI, Website and more.
+In addition to that, as mentioned previousely, the recording in Wayclip is not done via an external tool such as \lstinline|gpu-screen-recorder|, but is rather built in house using \emph{GStreamer} and the \lstinline|ashpd| libraries using \textbf{Rust}.
+
+\subsection{OBS Studio}
+
+\emph{OBS Studio} is a free and open source software for video recording and live streaming \cite{obs_studio}. \emph{OBS Studio} has gained a good reputation over time as one of the best softwares in this industry.
+\emph{OBS Studio} comes packaged with a "Replay Buffer" feature, allowing to store the encoded frames in a ring buffer in RAM. \emph{OBS Studio} has a very mature and grown ecosystem of C/C++ tools and packages which support the screencapture across various codecs, backends and hardware.
+The UI is built using \emph{Qt5/Qt6}, but the project overall has a large footprint, if the goal is solely to use the "Replay Buffer" feature.
+This project also handles fullscreen game capture with ease using their \lstinline|obs-vkcapture| hook layer directly, before it reaches Wayland.
+
+This is also a great project, which certainly posed as inspiration for Wayclip, but faces the same problem of lacking the specifics that make a clipping software manageable and easy to use.
+
+\subsection{wf-recorder}
+
+Lastly, \emph{wf-recorder} is a utility program for screen recording of \lstinline|wlroots|-based compositors (more specifically, those that support \lstinline|wlr-screencopy-v1| and \lstinline|xdg-output|) \cite{wf_recorder}.
+This project does not have a so-called "Ring Buffer", hence is not able to record in the background and capture the last N seconds. Instead, this software continously captures the screen and writes it to a file like a linear screen recorder.
+This project has no UI or an ecosystem, and only supports the "wlroots" environemnt, making its sole use in this situation -- a tool to learn about screen capture.
+
+\subsection{Generalisation}
+
+In general, Wayclip stands out from its competitors by finding the middle ground between bloated desktop softwares (\emph{OBS Studio}) and a bare-bones recording solution (\emph{GPU Screen Recorder}).
+There, it can provide the performance comparable to the standalone recorders via the use of GStreamer pipelines and Rust's memory safety, in addition to the great ecosystem of clip capturing, editting and sharing.
