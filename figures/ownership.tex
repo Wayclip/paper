@@ -1,0 +1,37 @@
+\resizebox{\linewidth}{!}{%
+	\begin{tikzpicture}[dg]
+		\node[tb, fill=accent!45, text width=24.25cm] (core) at (0,0)
+		{\bt{DaemonCore}\\[1pt]orchestrates the whole daemon: owns the session, channels and cancellation token, loads settings, builds and starts the modules, runs the event loop, routes commands, coordinates recovery and shuts everything down};
+		\node[tb, fill=accent!12, text width=10.35cm] (rec) at ([xshift=0.7cm,yshift=-0.9cm]core.south west)
+		{\bt{Recovery}\\[1pt]escalates restarts with back-off};
+		\draw[link] ([xshift=0.3cm]core.south west) |- (rec.west);
+
+		\tn{ipc}{1}{rec}{1}{core}{11.4}{}{DaemonIpc}{owns the D-Bus name and forwards commands to the core}
+		\tn{srv}{2}{ipc}{1}{ipc}{11.4}{}{DaemonServer}{exposes the D-Bus interface org.wayclip.Daemon1}
+
+		\tn{svc}{1}{srv}{2}{core}{11.4}{}{DaemonServices}{runs the non-essential extras}
+		\tn{dis}{2}{svc}{1}{svc}{11.4}{dashed}{Discovery (optional)}{identifies the running game}
+		\tn{dsc}{2}{dis}{2}{svc}{11.4}{dashed}{DiscordPresenceManager (optional)}{shows game and recording state}
+		\tn{try}{2}{dsc}{2}{svc}{11.4}{}{TrayManager}{shows the tray with quick actions}
+		\tn{key}{2}{try}{2}{svc}{11.4}{}{KeybindsService}{registers the save shortcut for the detected desktop}
+		\tn{dsk}{3}{key}{2}{key}{11.4}{}{DesktopManager}{binds the hotkey for the compositor in use}
+		\tn{ctl}{3}{dsk}{3}{key}{11.4}{dashed}{ControllerManager (optional)}{maps a controller combo to save}
+
+		\node[tb, fill=accent!12, text width=10.75cm] (eng) at ([xshift=12.8cm,yshift=-0.9cm]core.south west)
+		{\bt{DaemonEngine}\\[1pt]captures, encodes and stores frames; rebuilds the pipeline in place and falls back to system memory};
+		\draw[link] (eng.north |- core.south) -- (eng.north);
+
+		\tn{ring}{1}{eng}{0}{eng}{11.8}{}{RingBuffer}{holds the last N seconds of encoded frames}
+		\tn{pw}{1}{ring}{1}{eng}{11.8}{}{DaemonEnginePipeWire}{obtains the screencast stream through the XDG portal}
+		\tn{pwm}{2}{pw}{1}{pw}{11.8}{}{PipeWireManager}{tracks audio devices and system defaults}
+		\tn{gst}{1}{pwm}{2}{eng}{11.8}{}{DaemonEngineGStreamer}{builds the video and audio pipelines and feeds the ring}
+
+		\tn{vb}{2}{gst}{1}{gst}{11.8}{}{VideoBranchBuilder}{builds the video chain: source, preprocess, encode, parse}
+		\tn{vp}{3}{vb}{2}{vb}{11.8}{}{VideoPreprocessFactory}{selects the hardware path}
+		\tn{ve}{3}{vp}{3}{vb}{11.8}{}{VideoEncoderFactory}{selects encoder and settings}
+		\tn{vr}{3}{ve}{3}{vb}{11.8}{}{VideoParserFactory}{selects parser and caps}
+
+		\tn{ab}{2}{vr}{3}{gst}{11.8}{}{AudioBranchBuilder}{builds the audio chain after the mixer}
+		\tn{ad}{3}{ab}{2}{ab}{11.8}{}{AudioDeviceFactory}{attaches the microphone and the system sink}
+	\end{tikzpicture}%
+}

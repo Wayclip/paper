@@ -6,6 +6,7 @@
 \usepackage[scaled=0.92]{helvet}
 \usepackage[scaled=0.85]{inconsolata}
 \usepackage{microtype}
+\usepackage{graphicx}
 
 \usepackage[
     top=1.15in,
@@ -62,7 +63,8 @@
 \lstset{style=syscode}
 
 \usepackage{tikz}
-\usetikzlibrary{svg.path}
+\usetikzlibrary{svg.path, arrows.meta}
+\input{figures/style}
 
 \newcommand{\waycliplogo}[1][1.0]{
 \begin{tikzpicture}[scale=#1, yscale=-1, baseline=-2pt]

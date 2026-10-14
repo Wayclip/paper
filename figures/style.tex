@@ -1,0 +1,24 @@
+\usetikzlibrary{arrows.meta}
+
+\tikzset{
+dg/.style={x=1cm, y=1cm, every node/.style={font=\sffamily\scriptsize, text=inkBlack}},
+ownbox/.style={draw=accent!85, rounded corners=3pt, line width=0.6pt},
+link/.style={-{Stealth[length=1.8mm]}, line width=0.5pt, color=accent2},
+arr/.style={-{Stealth[length=2.6mm]}, line width=0.8pt, color=accent2},
+hdr/.style={font=\sffamily\footnotesize\bfseries, text=inkBlack},
+elab/.style={font=\sffamily\scriptsize, text=inkBlack, fill=white, inner sep=1.5pt},
+pipe/.style={ownbox, fill=white, minimum width=1.9cm, minimum height=1.1cm, align=center, inner sep=1pt},
+gpu/.style={pipe, fill=accent!28},
+tb/.style={ownbox, anchor=north west, align=left, inner sep=5pt}
+}
+
+\newcommand{\bt}[1]{{\sffamily\footnotesize\bfseries #1}}
+
+\newcommand{\tn}[9]{%
+	\pgfmathsetmacro{\tnx}{0.7*(#2-#4)}
+	\pgfmathsetmacro{\tnw}{#6-0.7*#2-0.35}
+	\pgfmathtruncatemacro{\tnf}{12*#2}
+	\node[tb,fill=accent!\tnf!white,#7,text width=\tnw cm,xshift=\tnx cm] (#1)
+	at ([yshift=-0.22cm]#3.south west) {\bt{#8}\\[1pt]#9};
+	\draw[link] ([xshift=0.3cm]#5.south west) |- (#1.west);%
+}
