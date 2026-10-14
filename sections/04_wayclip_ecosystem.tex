@@ -1,2 +1,57 @@
-
 \chapter{Wayclip Ecosystem}
+
+\section{Outline}
+
+Wayclip ecosystem consists of many individual components that work together to form a cohesive environment, making clipping your gameplay a pleasant experience.
+More specifically, Wayclip consists of: the daemon itself, which records your gameplay; a user interface of choice, be it the lightweight CLI or the immersive App; and the website, connecting people from across the globe.
+Let us break down what exactly each component means, what it offers and the future plans.
+
+\section{Daemon}
+
+The Wayclip Daemon is the core process, as mentioned throughout this paper, responsible for the recording and clipping of your screen.
+Everything that Wayclip builds upon, relies on the daemon to function in its best state. Currently, the daemon is tested everyday, and improved upon, where recently a major re-write was done.
+The daemon gives the core functionality to the Linux community, where-as Windows will have to wait for a future date. For more information about the inner workings of the daemon, refer back to Chapter~\ref{chapt:daemon}.
+
+The daemon also serves as an independent tool for those who enjoy autonomy and have their own pathways, since the code is open-source and all the IPC calls are publicly available.
+The daemon as of right now, along with the \lstinline|wayclip-core| library, are available on our GitHub and crates.io.
+
+The CLI, and the App, will talk to the Daemon using established routes over DBus IPC.
+
+\section{CLI}
+
+The Wayclip CLI is one of the core interfaces that we offer to interact with your clips. The CLI offers basic functionality that is necessary for managing your clips. This includes, but is not limited to:
+\begin{itemize}
+	\item Basic Clip Actions: List all of your clips! Rename, delete, view (via your default player -- terminals are not that modern yet)
+	\item Video Editing: trim the edges of your clip to isolate that specific moment by providing a timestamp. Either replace, or make a copy of your clip!
+	\item Social Actions: Login into your account via device auth flow. Upload your clips, manage, and share them directly from your terminal!
+	\item Daemon Management: Control your daemon. Stop, start, view \& follow the logs or check the status. Enable, or disable autostart.
+	\item Configuration: Follow our auto-setup tool to configure the user settings to your liking!
+\end{itemize}
+
+As is mostly everything, our CLI is also written in Rust, and will \emph{\textbf{soon}} be publicly available. As of writing this report, the CLI still remains in closed beta and under supervision.
+
+\section{App}
+
+The Wayclip App, or in simpler terms, the GUI counterpart offers the most inclusive experience for Wayclip. The GUI will include all the features listed for the CLI, and more:
+
+\begin{itemize}
+	\item Advanced Video Editing: Use an interface to trim your clips, layer sounds, add text.
+	\item Improved Clip Management: Control your clips more dynamically, and share them with a single click!
+	\item Personalised Feed: Explore your home page, and interact with other users' clips.
+	\item Enhanced Actions: By utilising our cutting edge UI, upload your clips and interact with Wayclip in a more intuitive and efficient manner.
+\end{itemize}
+
+As of October 2026, The Wayclip App is currently under development, and will most likely be built upon Tauri's v3 CEF framework. Chromium Embedded Framework, or CEF, is an OSS framework that allows developers to embed a fully functional Chromium web browser directly inside a native desktop application.
+There have been many issues with NVIDIA and Wayland, which caused us to rethink our strategy and push us to use the chromium embedded framework (CEF).
+The v3 CEF branch is not currently stable, however, so we will have to see in the future how everything plays out.
+
+\section{Website}
+
+The website, along with its actix-web based API, have been our core focus this entire time. The website will offer most of the social functionality, including: sharing clips, comments, friend lists and profile pages.
+The work on the API has been persistent and multiple re-writes have already gone underway, transforming it into our most sophisticated and maintainable architecture.
+The API will handle heavy user loads, smart uploads, background task processing, databases and more.
+
+As of right now, the website is being transformed to use SvelteKit, which allows us to enable faster development and the use of new emergent technologies.
+
+There have been discussions regarding the licensing of the website and the API. We would like to enable self-hosting, which would mean that we would go fully OSS, however, as of right now that decision is not confirmed.
+Hence, in its current state, the code remains private and protected.
