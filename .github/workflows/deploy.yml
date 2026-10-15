@@ -33,6 +33,7 @@ jobs:
           mkdir -p public
           cp main.pdf public/main.pdf
           cp main.pdf public/wayclip-paper.pdf
+          cp assets/favicon.ico public/favicon.ico
           echo "wayclip.konyogony.dev" > public/CNAME
           cat << 'EOF' > public/index.html
           <!DOCTYPE html>
@@ -40,6 +41,7 @@ jobs:
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="icon" type="image/x-icon" href="favicon.ico">
             <title>Wayclip Design & Architectural Report</title>
             <style>
               html, body, iframe {
