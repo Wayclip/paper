@@ -4,20 +4,19 @@
 
 Wayclip consists of a small team of developers, so the goals are quite simple and straightforward, but still require persistent effort to achieve.
 
-
 \begin{itemize}
-	\item Recording: Wayclip aims to have a so-called circular "Ring Buffer", able to capture and retain the last \emph{N} seconds of footage.
-	      Then, via the IPC, or a hotkey, a snapshot of the Ring Buffer is taken, and data written to a file.
-	      The recording itself should be efficient (meaning low CPU, RAM \& VRAM usage), widely supported across codecs and hardware and stable enough to record long gaming session across multiple games.
-	      Lastly, the recording should not depend on any third-party packages which already provide a ready tool, meaning Wayclip is not "just another wrapper" and has its own pipeline.
-	      \emph{P.S. This does \textbf{not} mean that Wayclip will not use any external libraries such as GStreamer, FFMpeg, PipeWire and more...}
-	\item Ease Of Use: Wayclip should provide an easy to way to install, setup and use the tools provided. This can be achieved by providing official packages across many distributions and consistent support to the community.
-	      To ensure that Wayclip is as easy to use, we are planning to implement an intuitive GUI application, alongside a website which prompts user to interact with the clips and explore the ecosystem even further.
-	\item Universal Support: Wayclip aims to be available and supported on a range of Linux distributions, and will work identically. Wayclip should also support a variety of hardware such as NVIDIA (NVENC/GL), AMD/Intel (VA-API) and even software based capturing.
+	\item Recording: Wayclip aims to have a so-called circular ``Ring Buffer'', able to capture and retain the last \emph{N} seconds of footage.
+	      Then, via the IPC, or a hotkey, a snapshot of the Ring Buffer is taken, and data is written to a file.
+	      The recording itself should be efficient (meaning low CPU, RAM \& VRAM usage), widely supported across codecs and hardware, and stable enough to record long gaming sessions across multiple games.
+	      Lastly, the recording should not depend on any third-party packages which already provide a ready tool, meaning Wayclip is not ``just another wrapper'' and has its own pipeline.
+	      \emph{P.S. This does \textbf{not} mean that Wayclip will not use any external libraries such as GStreamer, FFmpeg, PipeWire and more...}
+	\item Ease of Use: Wayclip should provide an easy way to install, set up and use the tools provided. This can be achieved by providing official packages across many distributions and consistent support to the community.
+	      To ensure that Wayclip is as easy to use, we are planning to implement an intuitive GUI application, alongside a website which prompts users to interact with the clips and explore the ecosystem even further.
+	\item Universal Support: Wayclip aims to be available and supported on a range of Linux distributions, and will work identically. Wayclip should also support a variety of hardware such as NVIDIA (NVENC/GL), AMD/Intel (VA-API) and even software-based capturing.
 	\item Rich and Robust Ecosystem: Wayclip aims to provide an experience of a social media, with a personal home page, comments, friend system and more via the upcoming website.
 	      This should be integrated directly with the CLI/GUI, allowing for seamless uploads, management of clips and user interaction.
 	\item Open-Source: The most important goal of Wayclip is to provide a base for future projects, and the community to learn and base off.
-	      By making the daemon, core library, CLI, GUI (upcoming) and Website/API (Possibly) open-source, we engage directly with the community, allowing for better user feedback, software improvements and increased trust.
+	      By making the daemon, core library, CLI, GUI (upcoming) and Website/API (possibly) open-source, we engage directly with the community, allowing for better user feedback, software improvements and increased trust.
 	      All the source code is available on our GitHub, under the MIT license.
 \end{itemize}
 
@@ -33,20 +32,20 @@ It is just as important to mention what falls out of scope for Wayclip as the ma
 
 \section{Success Criteria}
 
-Success is measured differently with Wayclip. Instead of focusing on raw number and user count, the performance and ease of use will be the deciding factor.
+Success is measured differently with Wayclip. Instead of focusing on raw numbers and user count, the performance and ease of use will be the deciding factors.
 More specifically, the daemon should:
 \begin{enumerate}[label=(\alph*)]
 	\item Not degrade the performance of the game (measured in average FPS or average frame time) by more than 5\%.
-	\item Should not exceed 800MB of RAM and 300MB of VRAM for a 2 minute capture with 60fps at 1440p during heavy gameplay.
+	\item Should not exceed 800MB of RAM and 300MB of VRAM for a 2-minute capture with 60fps at 1440p during heavy gameplay. This will be tested again in Section~\ref{sec:results}.
 	\item The clip should be available within $\sim5$ seconds after the save call.
 \end{enumerate}
 
-Tests have to be ran to measure the consistency and performance of Wayclip, which will be shared publicly.
+Tests have to be run to measure the consistency and performance of Wayclip, which will be shared publicly.
 
 
 \section{Target Audience}
 
-Our target audience consists of Linux (and in future Windows) users who play games, or are content creators, and wish to be able to seamlessly capture their screen.
-Users, who require a lightweight solution to record, and those who want the full experience with the UI too. Users, who want to connect with their community and the game they are playing by sharing the clip on our platform.
+Our target audience consists of Linux (and in the future, Windows) users who play games, or are content creators, and wish to be able to seamlessly capture their screen.
+Users who require a lightweight solution to record, and those who want the full experience with the UI too. Users who want to connect with their community and the game they are playing by sharing the clip on our platform.
 
-Users, who value privacy and security of their data, opting in for an open-source alternative to NVIDIA ShadowPlay or AMD ReLive.
+Users who value privacy and security of their data, opting for an open-source alternative to NVIDIA ShadowPlay or AMD ReLive.

@@ -2,9 +2,9 @@
 
 \section{Overview}
 
-When user installs Wayclip, either the CLI or the APP, a \lstinline|wayclip-daemon| binary is also installed.
+When a user installs Wayclip, either the CLI or the APP, a \lstinline|wayclip-daemon| binary is also installed.
 The daemon itself is a single Rust process built around one orchestrator, DaemonCore. DaemonCore controls the whole daemon using its various modules.
-The generally hierarchy as shown in Figure~\ref{fig:ownership}, illustrates those modules which consist of DaemonIpc (responsible for communications), DaemonServices (non-essential extras such as hotkeys and tray) and DaemonEngine (responsible for ring and frame capture).
+The general hierarchy, as shown in Figure~\ref{fig:ownership}, illustrates those modules which consist of DaemonIpc (responsible for communications), DaemonServices (non-essential extras such as hotkeys and tray) and DaemonEngine (responsible for ring and frame capture).
 
 \begin{figure}[htbp]
 	\centering
@@ -13,46 +13,118 @@ The generally hierarchy as shown in Figure~\ref{fig:ownership}, illustrates thos
 	\label{fig:ownership}
 \end{figure}
 
-The whole daemon breaks down to this one simple diagram, displaying how exactly everything is built and what module owns their children. This hierarchy is a part of our new \lstinline|v2| update for daemon, and is projected to increase the efficiency and growth of Wayclip.
+The whole daemon breaks down to this one simple diagram, displaying how exactly everything is built and which modules own their children. This hierarchy is a part of our new \lstinline|v2| update for the daemon, and is projected to increase the efficiency and growth of Wayclip.
 
 
 \section{Video \& Audio Pipeline}
 
-As shown previously, the video and audio pipeline are made inside DaemonEngineGStreamer, using its internal pipelines. We created wrappers around those gstreamer elements to make it easier to build more pipelines in the future, by assigning values and properties to the name in a separate module.
-The video branch is adapted to support NVIDIA, AMD and Intel GPU's. If no GPU is present, we are able to fallback to software encoders too. This is achieved by first capturing the connection data provided by the portal itself, which is then fed into \lstinline|pipewiresrc| elements.
-These elements use pipewire node ID's to capture those specific input, and after routing them through filters and processing stages, we can insert them into an AppSink. These app sinks also come from the GStreamer library, and are responsible for containing the data and passing it into the ring buffer.
+As shown previously, the video and audio pipelines are made inside DaemonEngineGStreamer, using its internal pipelines. We created wrappers around those GStreamer elements to make it easier to build more pipelines in the future, by assigning values and properties to the name in a separate module.
 
-Audio follows a same pattern, but instead of one source, we have two. We acquire the PipeWire node ID for the audio devices, then captured by a standalone \lstinline|pipewiresrc| (for microphone and background audio) they are mixed together into a single stream and later encoded.
+The video branch is adapted to support NVIDIA, AMD and Intel GPUs. If no GPU is present, we are able to fall back to software encoders too. This is achieved by first capturing the connection data provided by the portal itself, which is then fed into \lstinline|pipewiresrc| elements.
+These elements use PipeWire node IDs to capture that specific input, and after routing them through filters and processing stages, we can insert them into an AppSink. These AppSinks also come from the GStreamer library, and are responsible for containing the data and passing it into the ring buffer. On NVIDIA, the CUDA path is enabled automatically whenever it is available on the system, and can be forced with \lstinline|WAYCLIP_NVIDIA_CUDA=1| or switched to the OpenGL path with \lstinline|WAYCLIP_NVIDIA_GL=1|.
 
-Figure~\ref{fig:pipeline} shows the chain for NVIDIA specifically, where the Ring Buffer will keep the latest N seconds always available, and on command, will take a snapshot of that data and write it to a file. More specifically, when user saves a clip we dont clear the data inside, we just take a so-called "snapshot" of the data.
-Then we build a second short-lived pipeline on a separate thread and pipe that data into an AppSource, allowing us to not re-encode the frames and directly send them to the muxer. These frames are then written to a file, and all of this is done in the background to keep the daemon running, where once the save is complete, we signal using the \lstinline|mpsc| channel.
+Audio follows the same pattern, but instead of one source, we have two. We acquire the PipeWire node IDs for the audio devices, then captured by a standalone \lstinline|pipewiresrc| (for microphone and background audio) they are mixed together into a single stream and later encoded.
+
+Figure~\ref{fig:pipeline} shows the chain for NVIDIA's CUDA path specifically, where the ring buffer will keep the latest $N$ seconds always available, and on command, will take a snapshot of that data and write it to a file. More specifically, when a user saves a clip we don't clear the data inside, we just take a so-called ``snapshot'' of the data.
+Then we build a second short-lived pipeline on a separate thread and pipe that data into an AppSource, allowing us to not re-encode the frames and directly send them to the muxer. Each frame is copied before its timestamps are rebased, so the data still in the ring buffer is never modified. These frames are then written to a file, and all of this is done in the background to keep the daemon running, where once the save is complete, we signal using the \lstinline|mpsc| channel.
 
 \begin{figure}[htbp]
 	\centering
 	\input{figures/pipeline}
-	\caption{The GStreamer pipeline responsible for video \& audio in the daemon.}
+	\caption{The GStreamer pipeline responsible for video \& audio in the daemon (NVIDIA CUDA path).}
 	\label{fig:pipeline}
 \end{figure}
 
 
-It is also important to note that the ring buffer does not store the raw frames -- that would eat up your RAM way too aggressively -- instead, it stored the already encoded ones. The buffer is limited by a simple principle, where upon a frame being pushed inside, we check the total time limit, and if it exceeds the maximum setting -- we prune the oldest frames.
+It is also important to note that the ring buffer does not store the raw frames---that would eat up your RAM way too aggressively---instead, it stores the already encoded ones. The buffer is limited by a simple principle, where upon a frame being pushed inside, we check the total time limit, and if it exceeds the maximum setting---we prune the oldest frames.
 
 There have been many issues with DMA buffers, and the way they are handled. In short, DMA buffers are raw frames coming from a full-screen source, like a game, which can be copied directly. This is useful as it is usually more efficient and does not require capturing the system itself, only frames coming directly from the game.
-In some major titles that we have tested, DMA buffers are a necessity, without them the screen is just blank. Unfortunately, DMA buffers are quite painful to handle in some environments.
-Upon setting the caps filter to only accept DMA Buffers, if the input switches for any reason whatsoever -- be it alt-tabbing, or a random switchup, or any other cause -- the pipeline would stall and eventually come to a fail. For this specific reason, we have implemented many health detection systems, as well as recovery procedures.
+In some major titles that we have tested, DMA buffers are a necessity; without them the screen is just blank. Unfortunately, DMA buffers are quite painful to handle in some environments.
+Upon setting the caps filter to only accept DMA buffers, if the input switches for any reason whatsoever---be it alt-tabbing, or a random switch, or any other cause---the pipeline would stall and eventually fail. The CUDA path avoids this by always capturing through system memory, since \lstinline|cudaupload| cannot take DMA buffers. For this specific reason, we have implemented many health detection systems, as well as recovery procedures.
 
-Problems are detected in three main ways: Errors/EOS signals coming from the pipeline, a stall check (which triggers if no video frames arrive for >=10 seconds), and a guard (which notices when every single frame is being dropped).
-Then, depending on what was detected, recovery also has four stages. A quick restart (switching the caps), restarting the pipeline in place, downgrading to system memory, and a full pipeline rebuild.
-However, recoveries are also not retried instantly -- each attempt waits a bit longer than the last (following a ladder). After 30 seconds of healthy video, the counter resets back to a normal state.
+Problems are detected in three main ways: Error/EOS signals coming from the pipeline, a stall check (which triggers if no video frames arrive for $\ge 10$ seconds), and a guard (which notices when every single frame is being dropped).
+Then, depending on what was detected, recovery also has four stages: a quick restart (switching the caps), restarting the pipeline in place, downgrading to system memory, and a full pipeline rebuild.
+However, recoveries are also not retried instantly---each attempt waits a bit longer than the last (following a ladder). After 30 seconds of healthy video, the counter resets back to a normal state.
+
 
 \section{Event Loop}
 
-Once the setup was complete, and the daemon is active, the daemon now enters the event loop stage as shown in Figure~\ref{fig:event_loop}.
-The event loop is a \lstinline|tokio::select!| statement which sleeps until any input is ready. The inputs include a termination signal, command from the IPC, GStreamer events, Save Results and the tick timer for DaemonServices.
+Once the setup is complete, and the daemon is active, the daemon now enters the event loop stage as shown in Figure~\ref{fig:event_loop}.
+The event loop is a \lstinline|tokio::select!| statement which sleeps until any input is ready. The inputs include a termination signal, commands from the IPC, GStreamer events, save results and the tick timer for DaemonServices.
 
 \begin{figure}[htbp]
 	\centering
 	\input{figures/event_loop}
-	\caption{Event loop for wayclip}
+	\caption{Event loop for Wayclip}
 	\label{fig:event_loop}
 \end{figure}
+
+\section{Performance Results} \label{sec:results}
+
+It is now time to compare the direct performance results with current competitors. The comparisons were made on my local system.
+My system is Arch Linux x86\_64 (7.2.7.arch1-1), with Hyprland 0.56.2 (Wayland) and NVIDIA driver version v615.71.09-1 using paru.
+My CPU is an Intel(R) i5-12600KF, with 32GB DDR4 3200MHz RAM and an RTX 3060 12GB VRAM GPU.
+
+All the comparisons were made with the same configuration (or a similar one), where we set the buffer length to 2 minutes, recording 60fps at 2560x1440 resolution.
+We used the NVIDIA H.264 codec under a constant bitrate of 15000kbps. The audio codec was Opus, working at a frequency of 48000Hz, recording both microphone and background audio.
+
+We compare Wayclip (commit 3f19d6caf56a3714854050135600cb1823e01d98) to OBS Studio (32.2.2), Vice Clipper (2.14.2), and GPU Screen Recorder (GSR) (6.1.4).
+Testing was done by taking three repeats of each process whilst a high-definition recording of the same gameplay is shown on the screen. This was done to show the exact same frames for the exact same amount of time to each of the tools, since human input is unreliable.
+In the future, we may experiment by measuring the 1\% lows whilst playing video games, but that data may be heavily distorted.
+
+In Table~\ref{tab:cpu_ram} we can observe the results for the CPU usage, where 100\% indicates a full single core, and the RAM usage.
+
+\begin{table}[ht]
+	\centering
+	\small
+	\caption{Host system overhead (CPU \& RAM)}
+	\label{tab:cpu_ram}
+	\begin{tabular}{l c cc cc}
+		\toprule
+		{\textbf{Tool}} & {\textbf{Runs}} & \multicolumn{2}{c}{\textbf{CPU Usage (\%)}} & \multicolumn{2}{c}{\textbf{RAM (MB)}}                                   \\
+		\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+		                &                 & Median                                      & Range                                 & Avg            & Peak           \\
+		\midrule
+		Baseline        & 3               & \phantom{0}0.0                              & \phantom{0}0.0--0.0\phantom{0}        & \phantom{000}4 & \phantom{000}4 \\
+		\midrule
+		GSR             & 3               & \textbf{17.1}                               & \textbf{17.1}--\textbf{17.3}          & \phantom{0}803 & \phantom{0}805 \\
+		Vice            & 3               & 17.3                                        & 17.3--18.5                            & \phantom{0}973 & 1010           \\
+		OBS             & 3               & 36.6                                        & 24.5--36.7                            & 1190           & 1190           \\
+		Wayclip         & 3               & 51.1                                        & 50.0--54.7                            & \textbf{738}   & \textbf{756}   \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+We can see that on average, Wayclip uses less RAM than all the other tools, whilst having higher CPU usage than its competitors.
+This may indicate a better compression algorithm, which in turn uses a larger percentage of your CPU. In practical testing, however, this difference was barely noticeable.
+In the end, this data will be used to further improve Wayclip to match the standards expected by our community.
+
+\bigskip
+
+Table~\ref{tab:gpu}, on the other hand, presents data related to the GPU and VRAM usage.
+
+\begin{table}[ht]
+	\centering
+	\small
+	\caption{GPU and hardware acceleration overhead}
+	\label{tab:gpu}
+	\begin{tabular}{l c cc cc}
+		\toprule
+		{\textbf{Tool}} & {\textbf{Runs}} & \multicolumn{2}{c}{\textbf{VRAM (MB)}} & \multicolumn{2}{c}{\textbf{GPU Util (\%)}}                                 \\
+		\cmidrule(lr){3-4} \cmidrule(lr){5-6}
+		                &                 & $\Delta$System                         & Dedicated                                  & $\Delta$Core & NVENC          \\
+		\midrule
+		Baseline        & 3               & \phantom{00}0                          & \phantom{00}0                              & 0.2          & \phantom{0}0.0 \\
+		\midrule
+		GSR             & 3               & \textbf{228}                           & \textbf{226}                               & \textbf{2.5} & 25.1           \\
+		Vice            & 3               & 230                                    & 226                                        & 2.5          & 25.4           \\
+		OBS             & 3               & 549                                    & 469                                        & 6.9          & 49.1           \\
+		Wayclip         & 3               & 245                                    & 238                                        & 16.2         & \textbf{17.0}  \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+The table suggests that Wayclip has the lowest NVENC load, which comes at the expense of higher GPU core activity.
+This might indicate that Wayclip does more processing on the GPU to the frames before they are passed to the NVENC session, whereas GSR uses a direct zero-copy algorithm.
+
+Meanwhile, VRAM usage stays consistent in relation to other tools, even being lower than the standard OBS Studio.

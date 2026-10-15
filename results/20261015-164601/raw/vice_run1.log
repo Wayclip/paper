@@ -1,0 +1,11 @@
+[Vice 2.14.2] Recording started.
+  Backend   : gpu-screen-recorder
+  Clip key  : KEY_F9
+  Output    : /home/kony/Videos/Vice
+  UI URL    : http://127.0.0.1:8765/
+  Share URL : http://192.168.1.175:8766/
+Press Ctrl-C to stop.
+
+
+[Vice] Shutting down…
+[Vice] Stopped.

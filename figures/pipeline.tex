@@ -1,12 +1,12 @@
 \resizebox{\linewidth}{!}{%
 	\begin{tikzpicture}[dg]
 		\node[hdr,anchor=west] at (0,1.3) {Video branch};
-		\foreach \i/\t/\s in {0/{pipewiresrc\\(screen)}/pipe, 1/queue/pipe, 2/glupload/gpu, 3/{glcolor\\convert}/gpu,
-		4/{glcolor\\scale}/gpu, 5/{glcolor\\convert}/gpu, 6/videorate/gpu, 7/{encoder\\(GPU)}/gpu,
-		8/parser/pipe, 9/queue/pipe, 10/appsink/pipe}{
-		\node[\s] (v\i) at ({\i*2.3+1.0},0) {\t};}
-		\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10}{\draw[arr] (v\i) -- (v\j);}
-		\draw[arr] (v10.east) -- (25.4,0);
+		\foreach \i/\t/\s in {0/{pipewiresrc\\(screen)}/pipe, 1/queue/pipe, 2/cudaupload/gpu,
+		3/{cuda\\convertscale}/gpu, 4/videorate/gpu, 5/{encoder\\(GPU)}/gpu,
+		6/parser/pipe, 7/queue/pipe, 8/appsink/pipe}{
+		\node[\s] (v\i) at ({\i*2.9+1.0},0) {\t};}
+		\foreach \i/\j in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8}{\draw[arr] (v\i) -- (v\j);}
+		\draw[arr] (v8.east) -- (25.4,0);
 
 		\node[hdr,anchor=west] at (0,-1.8) {Audio branch};
 		\foreach \i/\t in {0/{pipewiresrc\\(microphone)}, 1/queue, 2/{convert +\\resample}, 3/capsfilter}{

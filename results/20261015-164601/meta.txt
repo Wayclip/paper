@@ -1,0 +1,9 @@
+date: 2026-10-15T16:46:01+07:00
+gpu: NVIDIA GeForce RTX 3060, 615.71.09
+runs: 3, duration: 180s, steady state from 120s, warmup 5s, cooldown 15s
+workload: mpv --fullscreen --loop=inf --hwdec=auto /home/kony/Videos/testing.mp4
+baseline: sleep 100000
+gsr: gpu-screen-recorder -w screen -s 2560x1440 -f 60 -k h264 -bm cbr -q 15000 -ac opus -a default_output|default_input -r 120 -c mkv -o /tmp
+vice: vice start --no-open-ui
+obs: obs --startreplaybuffer --minimize-to-tray
+wayclip: /home/kony/Documents/GitHub/daemon/target/release/wayclip-daemon
