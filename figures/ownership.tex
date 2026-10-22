@@ -1,8 +1,8 @@
 \resizebox{\linewidth}{!}{%
 	\begin{tikzpicture}[dg]
-		\node[tb, fill=accent!45, text width=24.25cm] (core) at (0,0)
+		\node[tb, fill=primary!45, text width=24.25cm] (core) at (0,0)
 		{\bt{DaemonCore}\\[1pt]orchestrates the whole daemon: owns the session, channels and cancellation token, loads settings, builds and starts the modules, runs the event loop, routes commands, coordinates recovery and shuts everything down};
-		\node[tb, fill=accent!12, text width=10.35cm] (rec) at ([xshift=0.7cm,yshift=-0.9cm]core.south west)
+		\node[tb, fill=primary!12, text width=10.35cm] (rec) at ([xshift=0.7cm,yshift=-0.9cm]core.south west)
 		{\bt{Recovery}\\[1pt]escalates restarts with back-off};
 		\draw[link] ([xshift=0.3cm]core.south west) |- (rec.west);
 
@@ -17,7 +17,7 @@
 		\tn{dsk}{3}{key}{2}{key}{11.4}{}{DesktopManager}{binds the hotkey for the compositor in use}
 		\tn{ctl}{3}{dsk}{3}{key}{11.4}{dashed}{ControllerManager (optional)}{maps a controller combo to save}
 
-		\node[tb, fill=accent!12, text width=10.75cm] (eng) at ([xshift=12.8cm,yshift=-0.9cm]core.south west)
+		\node[tb, fill=primary!12, text width=10.75cm] (eng) at ([xshift=12.8cm,yshift=-0.9cm]core.south west)
 		{\bt{DaemonEngine}\\[1pt]captures, encodes and stores frames; rebuilds the pipeline in place and falls back to system memory};
 		\draw[link] (eng.north |- core.south) -- (eng.north);
 

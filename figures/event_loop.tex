@@ -3,48 +3,48 @@
 		\node[hdr, anchor=south west] at (0, 0.4) {Input Events / Triggers};
 		\node[hdr, anchor=south] at (11.0, 0.4) {Core Event Loop (\texttt{tokio::select!})};
 		\node[hdr, anchor=south west] at (14.6, 0.4) {Dispatched Actions};
-		\node[tb, fill=accent!12, text width=7.3cm] (i0) at (0, 0) {
+		\node[tb, fill=primary!12, text width=7.3cm] (i0) at (0, 0) {
 			\bt{Termination Signal}\\[2pt]
 			\texttt{SIGINT}, \texttt{SIGTERM}, or internal cancellation token
 		};
-		\node[tb, fill=accent!12, text width=9.2cm] (o0) at (14.6, 0) {
+		\node[tb, fill=primary!12, text width=9.2cm] (o0) at (14.6, 0) {
 			\bt{Graceful Shutdown}\\[2pt]
 			Calls shutdown on every module to release resources, flushes buffers, and exits
 		};
-		\node[tb, fill=accent!12, text width=7.3cm] (i1) at (0, -1.6) {
+		\node[tb, fill=primary!12, text width=7.3cm] (i1) at (0, -1.6) {
 			\bt{Commands (IPC)}\\[2pt]
 			\texttt{GetStatus}, \texttt{SaveClip}, or \texttt{Shutdown} sent over D-Bus by CLI, tray, keybind, or controller
 		};
-		\node[tb, fill=accent!12, text width=9.2cm] (o1) at (14.6, -1.6) {
+		\node[tb, fill=primary!12, text width=9.2cm] (o1) at (14.6, -1.6) {
 			\bt{Handle Command}\\[2pt]
 			\texttt{GetStatus} replies with current state; \texttt{SaveClip} snapshots the ring buffer and spawns async save worker; \texttt{Shutdown} initiates exit
 		};
-		\node[tb, fill=accent!12, text width=7.3cm] (i2) at (0, -4.0) {
+		\node[tb, fill=primary!12, text width=7.3cm] (i2) at (0, -4.0) {
 			\bt{Pipeline Events}\\[2pt]
 			GStreamer bus error or portal end-of-stream (EOS) message
 		};
-		\node[tb, fill=accent!12, text width=9.2cm] (o2) at (14.6, -4.0) {
+		\node[tb, fill=primary!12, text width=9.2cm] (o2) at (14.6, -4.0) {
 			\bt{Schedule Recovery}\\[2pt]
 			Recovery restarts the capture pipeline with exponential back-off
 		};
-		\node[tb, fill=accent!12, text width=7.3cm] (i3) at (0, -5.6) {
+		\node[tb, fill=primary!12, text width=7.3cm] (i3) at (0, -5.6) {
 			\bt{Save Results}\\[2pt]
 			Background encoder worker finishes writing clip (success or I/O error)
 		};
-		\node[tb, fill=accent!12, text width=9.2cm] (o3) at (14.6, -5.6) {
+		\node[tb, fill=primary!12, text width=9.2cm] (o3) at (14.6, -5.6) {
 			\bt{Finalize Save}\\[2pt]
 			Reverts state to \texttt{Active}, trims memory, emits notification, and replies to caller
 		};
-		\node[tb, fill=accent!12, text width=7.3cm] (i4) at (0, -7.2) {
+		\node[tb, fill=primary!12, text width=7.3cm] (i4) at (0, -7.2) {
 			\bt{Upkeep Timer}\\[2pt]
 			Periodic tick interval every 500\,ms
 		};
-		\node[tb, fill=accent!12, text width=9.2cm] (o4) at (14.6, -7.2) {
+		\node[tb, fill=primary!12, text width=9.2cm] (o4) at (14.6, -7.2) {
 			\bt{Run Maintenance}\\[2pt]
 			Polls game window, updates Discord presence, checks pipeline health, and retries DMA-BUF
 		};
 		\path (0, 0.1) -- (0, -8.5) coordinate[midway] (loopmid);
-		\node[tb, fill=accent!32, text width=4.5cm, minimum height=8.6cm, anchor=center] (loop) at (11.0, 0 |- loopmid) {
+		\node[tb, fill=primary!32, text width=4.5cm, minimum height=8.6cm, anchor=center] (loop) at (11.0, 0 |- loopmid) {
 			\bt{Event Loop}\\[3pt]
 			\scriptsize
 			Single asynchronous \texttt{tokio::select!} loop.\\[6pt]

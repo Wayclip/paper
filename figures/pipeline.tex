@@ -25,7 +25,7 @@
 		\foreach \i/\j in {5/6,6/7,7/8,8/9,9/10}{\draw[arr] (a\i) -- (a\j);}
 		\draw[arr] (a10.east) -- (25.4,-4.4);
 
-		\draw[ownbox,fill=accent!45,line width=0.9pt] (25.4,1.0) rectangle (27.2,-6.6);
+		\draw[ownbox,fill=primary!45,line width=0.9pt] (25.4,1.0) rectangle (27.2,-6.6);
 		\node[rotate=90,align=center] at (26.3,-2.8) {RingBuffer\\last N seconds of encoded frames};
 		\draw[arr] (26.3,-6.6) -- node[right,xshift=2pt]{snapshot} (26.3,-8.2);
 		\node[pipe,minimum width=3.4cm] at (25.5,-8.8) {SavePipelineFactory};

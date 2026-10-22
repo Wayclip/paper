@@ -7,6 +7,8 @@
 \usepackage[scaled=0.85]{inconsolata}
 \usepackage{microtype}
 \usepackage{graphicx}
+\usepackage{svg}
+\svgpath{{assets/branding/svgs/}}
 
 \usepackage[
     top=1.15in,
@@ -24,8 +26,8 @@
 \setlist{topsep=4pt, itemsep=2pt, parsep=0pt}
 
 \usepackage[dvipsnames]{xcolor}
-\definecolor{accent}{HTML}{6C56B3}
-\definecolor{accent2}{HTML}{47366B}
+\definecolor{primary}{HTML}{856CC4}
+\definecolor{secondary}{HTML}{9075D3}
 \definecolor{inkBlack}{HTML}{1A1A1A}
 \definecolor{borderGray}{HTML}{D9DDE3}
 \definecolor{metaLabel}{HTML}{6B7280}
@@ -38,9 +40,9 @@
 \lstdefinestyle{syscode}{
     language=C,
     basicstyle=\ttfamily\small\color{inkBlack},
-    keywordstyle=\bfseries\color{accent2},
+    keywordstyle=\bfseries\color{secondary},
     commentstyle=\itshape\color{metaLabel},
-    stringstyle=\color{accent},
+    stringstyle=\color{primary},
     numberstyle=\ttfamily\scriptsize\color{metaLabel!80},
     numbers=left,
     numbersep=10pt,
@@ -63,20 +65,16 @@
 \lstset{style=syscode}
 
 \usepackage{tikz}
-\usetikzlibrary{svg.path, arrows.meta}
+\usetikzlibrary{arrows.meta}
 \input{figures/style}
 
-\newcommand{\waycliplogo}[1][1.0]{
-\begin{tikzpicture}[scale=#1, yscale=-1, baseline=-2pt]
-    \fill[accent] svg "m 4.9518404,4.9999826 h 7.0895306 q 0.590794,0 0.853369,0.951835 0.131288,0.4923285 0.131288,0.9518351 0,0.4595066 -0.131288,0.9518351 -0.262575,0.9518351 -0.853369,0.9518351 H 7.8073457 V 31.191858 h 4.2340253 q 0.590794,0 0.853369,0.951835 0.131288,0.492329 0.131288,0.951835 0,0.459507 -0.131288,0.951836 -0.262575,0.951835 -0.853369,0.951835 H 4.9518404 q -0.9518351,0 -0.9518351,-0.951835 V 5.9518176 q 0,-0.951835 0.9518351,-0.951835 z";
-    \fill[accent2] svg "m 27.958662,5.0000118 h 7.089725 q 0.951861,0 0.951861,0.9518612 V 34.04819 q 0,0.951861 -0.951861,0.951861 h -7.089725 q -0.59081,0 -0.853393,-0.951861 -0.131291,-0.492342 -0.131291,-0.951862 0,-0.459519 0.131291,-0.951861 0.262583,-0.951861 0.853393,-0.951861 h 4.234141 V 8.8074566 h -4.234141 q -0.59081,0 -0.853393,-0.9518612 -0.131291,-0.492342 -0.131291,-0.9518612 0,-0.4595192 0.131291,-0.9518612 0.262583,-0.9518612 0.853393,-0.9518612 z";
-    \fill[accent] svg "m 24.220643,13.7506 q -0.03206,-0.243513 1.456072,-0.439429 3.355059,-0.441702 3.329442,-0.218121 l -0.920392,13.498753 q -0.02418,0.443596 -2.946325,0.828305 -2.922149,0.384708 -3.060313,-0.03752 l -1.907247,-5.914706 -0.581991,6.24242 q -0.02774,0.41654 -3.058115,0.815497 -3.003318,0.395394 -3.148607,-0.08094 L 9.240352,15.585163 q -0.1025455,-0.151654 2.305524,-0.468682 2.384571,-0.28641 2.395257,-0.205239 l 2.448612,8.981384 1.05598,-9.332668 q 0.03274,-0.169467 1.764385,-0.397442 1.731643,-0.227975 1.807129,-0.07276 l 3.394166,8.636692 z";
-\end{tikzpicture}
+\newcommand{\waycliplogo}[1][40pt]{%
+    \includesvg[inkscapelatex=false,width=#1]{wayclip}%
 }
 
 \titleformat{\chapter}[block]
   {\normalfont\sffamily\bfseries\color{inkBlack}}
-  {\sffamily\bfseries\color{accent}\thechapter}
+  {\sffamily\bfseries\color{primary}\thechapter}
   {1em}
   {\Large}
   [{\vspace{0.4ex}\color{borderGray}\titlerule[0.8pt]}]
@@ -108,9 +106,9 @@
 
 \usepackage[
     colorlinks=true,
-    linkcolor=accent,
-    citecolor=accent,
-    urlcolor=accent
+    linkcolor=primary,
+    citecolor=primary,
+    urlcolor=primary
 ]{hyperref}
 
 \begin{document}
@@ -119,12 +117,12 @@
 	\centering
 	\vspace*{3cm}
 
-	\waycliplogo[2.4]
+	\waycliplogo[96pt]
 
 	\vspace{1.6cm}
 
 	{\Huge\sffamily\bfseries\color{inkBlack} wayclip}\\[0.6em]
-	{\Large\sffamily\color{accent} Design \& Architectural Report}
+	{\Large\sffamily\color{primary} Design \& Architectural Report}
 
 	\vspace{3cm}
 
@@ -147,11 +145,11 @@
 
 \pagenumbering{arabic}
 
-\include{sections/01_problem_space}
-\include{sections/02_objectives}
-\include{sections/03_daemon_architecture}
-\include{sections/04_wayclip_ecosystem}
-\include{sections/05_conclusion}
+\input{sections/01_problem_space}
+\input{sections/02_objectives}
+\input{sections/03_daemon_architecture}
+\input{sections/04_wayclip_ecosystem}
+\input{sections/05_conclusion}
 
 \clearpage
 \phantomsection

@@ -3,6 +3,7 @@
 set -euo pipefail
 zmodload zsh/datetime
 
+readonly SCRIPT_DIR="${0:A:h}"
 readonly DURATION=180
 readonly STEADY_FROM=120
 RUNS="${RUNS:-3}"
@@ -30,7 +31,7 @@ for t in "${TOOLS[@]}"; do set_cmd "$t"; done
 [ -f "$VIDEO_PATH" ] || { echo "[-] Video not found: $VIDEO_PATH"; exit 1; }
 command -v nvidia-smi >/dev/null || { echo "[-] nvidia-smi not found"; exit 1; }
 
-OUT="results/$(date +%Y%m%d-%H%M%S)"
+OUT="$SCRIPT_DIR/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$OUT/raw"
 {
     echo "date: $(date -Is)"
